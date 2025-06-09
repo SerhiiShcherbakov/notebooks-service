@@ -1,0 +1,17 @@
+services:
+  notebooks-service-mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=notebooks_db'
+      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+      - 'MYSQL_USER=myuser'
+    ports:
+      - '3306:3306'
+  notebooks-service-rabbitmq:
+    image: 'rabbitmq:latest'
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=secret'
+      - 'RABBITMQ_DEFAULT_USER=myuser'
+    ports:
+      - '5672:5672'

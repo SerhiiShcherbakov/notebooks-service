@@ -1,0 +1,148 @@
+{
+  "notebooks": [
+    {
+      "id": 1,
+      "title": "title-1",
+      "body": "body-1",
+      "deleted_at": null,
+      "user_id": 1,
+      "created_at": "2025-01-01 10:00:00",
+      "updated_at": "2025-01-01 10:00:00"
+    },
+    {
+      "id": 2,
+      "title": "title-2",
+      "body": null,
+      "deleted_at": "2025-01-20 10:00:00",
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 3,
+      "title": "title-3",
+      "body": "body-3",
+      "deleted_at": null,
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 4,
+      "title": "title-4",
+      "body": "body-4",
+      "deleted_at": "2025-01-10 10:00:00",
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 5,
+      "title": "title-5",
+      "body": "body-5",
+      "deleted_at": null,
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 6,
+      "title": "title-6",
+      "body": "body-6",
+      "deleted_at": null,
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 7,
+      "title": "title-7",
+      "body": "body-7",
+      "deleted_at": null,
+      "user_id": 2,
+      "created_at": "2025-01-05 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": "groovy:(value > 7)",
+      "title": "title-8",
+      "body": "body-8",
+      "deleted_at": null,
+      "user_id": 1,
+      "created_at": "groovy:(value != null)",
+      "updated_at": "groovy:(value != null)"
+    }
+  ],
+  "notebooks_tags": [
+    {
+      "notebook_id": 1,
+      "tag_id": 1
+    },
+    {
+      "notebook_id": 1,
+      "tag_id": 2
+    },
+    {
+      "notebook_id": 2,
+      "tag_id": 2
+    },
+    {
+      "notebook_id": 3,
+      "tag_id": 3
+    },
+    {
+      "notebook_id": 4,
+      "tag_id": 1
+    },
+    {
+      "notebook_id": 4,
+      "tag_id": 2
+    },
+    {
+      "notebook_id": 7,
+      "tag_id": 4
+    },
+    {
+      "notebook_id": "groovy:(value > 7)",
+      "tag_id": 1
+    },
+    {
+      "notebook_id": "groovy:(value > 7)",
+      "tag_id": 2
+    }
+  ],
+  "tags": [
+    {
+      "id": 1,
+      "title": "title-1",
+      "color": "#111111",
+      "user_id": 1,
+      "created_at": "2025-01-01 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 2,
+      "title": "title-2",
+      "color": "#222222",
+      "user_id": 1,
+      "created_at": "2025-01-02 10:00:00",
+      "updated_at": "2025-01-02 10:00:00"
+    },
+    {
+      "id": 3,
+      "title": "title-3",
+      "color": "#333333",
+      "user_id": 1,
+      "created_at": "2025-01-03 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    },
+    {
+      "id": 4,
+      "title": "title-4",
+      "color": "#444444",
+      "user_id": 2,
+      "created_at": "2025-01-03 10:00:00",
+      "updated_at": "2025-01-05 10:00:00"
+    }
+  ]
+}
