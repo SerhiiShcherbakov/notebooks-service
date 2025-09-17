@@ -1,10 +1,11 @@
 package com.serhiishcherbakov.notebooks.messaging;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.serhiishcherbakov.notebooks.config.RabbitProperties;
 import com.serhiishcherbakov.notebooks.domain.notebook.Notebook;
+import com.serhiishcherbakov.notebooks.domain.outbox.OutboxEvent;
 import com.serhiishcherbakov.notebooks.domain.tag.Tag;
-import com.serhiishcherbakov.notebooks.messaging.model.BaseMessage;
-import com.serhiishcherbakov.notebooks.messaging.model.EventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,44 +17,39 @@ import org.springframework.stereotype.Service;
 public class RabbitService {
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
-    private final MessageBodyConverter messageBodyConverter;
+    private final ObjectMapper objectMapper;
 
-    public void publishNotebookCreatedEvent(Notebook... notebooks) {
-        convertAndSend(rabbitProperties.routingKeys().notebooksCreated(),
-                messageBodyConverter.createNotebookMessage(EventType.NOTEBOOK_CREATED, notebooks));
+    public void publishEvent(OutboxEvent event) throws JsonProcessingException {
+        rabbitTemplate.convertAndSend(
+                rabbitProperties.exchanges().notebooks(),
+                getRoutingKeyForEvent(event),
+                convertToMessage(event, getDataClassForEvent(event)));
     }
 
-    public void publishNotebookUpdatedEvent(Notebook... notebooks) {
-        convertAndSend(rabbitProperties.routingKeys().notebooksUpdated(),
-                messageBodyConverter.createNotebookMessage(EventType.NOTEBOOK_UPDATED, notebooks));
+    private String getRoutingKeyForEvent(OutboxEvent event) {
+        return switch (event.getType()) {
+            case NOTEBOOK_CREATED -> rabbitProperties.routingKeys().notebooksCreated();
+            case NOTEBOOK_UPDATED -> rabbitProperties.routingKeys().notebooksUpdated();
+            case NOTEBOOK_DELETED -> rabbitProperties.routingKeys().notebooksDeleted();
+            case TAG_CREATED -> rabbitProperties.routingKeys().tagsCreated();
+            case TAG_UPDATED -> rabbitProperties.routingKeys().tagsUpdated();
+            case TAG_DELETED -> rabbitProperties.routingKeys().tagsDeleted();
+        };
     }
 
-    public void publishNotebookDeletedEvent(Notebook... notebooks) {
-        convertAndSend(rabbitProperties.routingKeys().notebooksDeleted(),
-                messageBodyConverter.createNotebookMessage(EventType.NOTEBOOK_DELETED, notebooks));
+    private Class<?> getDataClassForEvent(OutboxEvent event) {
+        return switch (event.getType()) {
+            case NOTEBOOK_CREATED, NOTEBOOK_UPDATED, NOTEBOOK_DELETED -> Notebook.class;
+            case TAG_CREATED, TAG_UPDATED, TAG_DELETED -> Tag.class;
+        };
     }
 
-    public void publishTagCreatedEvent(Tag... tags) {
-        convertAndSend(rabbitProperties.routingKeys().tagsCreated(),
-                messageBodyConverter.createTagMessage(EventType.TAG_CREATED, tags));
-    }
-
-    public void publishTagUpdatedEvent(Tag... tags) {
-        convertAndSend(rabbitProperties.routingKeys().tagsUpdated(),
-                messageBodyConverter.createTagMessage(EventType.TAG_UPDATED, tags));
-    }
-
-    public void publishTagDeletedEvent(Tag... tags) {
-        convertAndSend(rabbitProperties.routingKeys().tagsDeleted(),
-                messageBodyConverter.createTagMessage(EventType.TAG_DELETED, tags));
-    }
-
-
-    private void convertAndSend(String routingKey, BaseMessage<?> message) {
-        try {
-            rabbitTemplate.convertAndSend(rabbitProperties.exchanges().notebooks(), routingKey, message);
-        } catch (Exception e) {
-            log.error("Failed to send message to {} - {}", routingKey, e.getMessage());
-        }
+    private <T> Message<T> convertToMessage(OutboxEvent event, Class<T> dataClass) throws JsonProcessingException {
+        return Message.<T>builder()
+                .id(event.getId())
+                .type(event.getType())
+                .createdAt(event.getCreatedAt())
+                .data(objectMapper.readValue(event.getData(), dataClass))
+                .build();
     }
 }

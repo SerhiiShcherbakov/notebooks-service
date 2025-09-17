@@ -1,8 +1,9 @@
 package com.serhiishcherbakov.notebooks.domain.tag;
 
+import com.serhiishcherbakov.notebooks.domain.outbox.OutboxEventService;
+import com.serhiishcherbakov.notebooks.domain.outbox.OutboxEventType;
 import com.serhiishcherbakov.notebooks.exception.AppException;
 import com.serhiishcherbakov.notebooks.exception.Error;
-import com.serhiishcherbakov.notebooks.messaging.RabbitService;
 import com.serhiishcherbakov.notebooks.rest.dto.request.TagRequestDto;
 import com.serhiishcherbakov.notebooks.security.UserDetails;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TagService {
     private final TagRepository tagRepository;
-    private final RabbitService rabbitService;
+    private final OutboxEventService outboxEventService;
 
     @Transactional(readOnly = true)
     public List<Tag> getTags(UserDetails user) {
@@ -45,7 +46,7 @@ public class TagService {
                 .build();
 
         tag = tagRepository.save(tag);
-        rabbitService.publishTagCreatedEvent(tag);
+        outboxEventService.saveTagOutboxEvent(tag, OutboxEventType.TAG_CREATED);
         return tag;
     }
 
@@ -57,7 +58,7 @@ public class TagService {
                 .build();
 
         tag = tagRepository.save(tag);
-        rabbitService.publishTagUpdatedEvent(tag);
+        outboxEventService.saveTagOutboxEvent(tag, OutboxEventType.TAG_UPDATED);
         return tag;
     }
 
@@ -65,6 +66,6 @@ public class TagService {
     public void deleteTag(Long id, UserDetails user) {
         var tag = getTag(id, user);
         tagRepository.delete(tag);
-        rabbitService.publishTagDeletedEvent(tag);
+        outboxEventService.saveTagOutboxEvent(tag, OutboxEventType.TAG_DELETED);
     }
 }

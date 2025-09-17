@@ -1,10 +1,11 @@
 package com.serhiishcherbakov.notebooks.domain.notebook;
 
 import com.serhiishcherbakov.notebooks.domain.common.PageResult;
+import com.serhiishcherbakov.notebooks.domain.outbox.OutboxEventService;
+import com.serhiishcherbakov.notebooks.domain.outbox.OutboxEventType;
 import com.serhiishcherbakov.notebooks.domain.tag.TagService;
 import com.serhiishcherbakov.notebooks.exception.AppException;
 import com.serhiishcherbakov.notebooks.exception.Error;
-import com.serhiishcherbakov.notebooks.messaging.RabbitService;
 import com.serhiishcherbakov.notebooks.rest.dto.request.NotebookRequestDto;
 import com.serhiishcherbakov.notebooks.rest.dto.request.TagIdsRequestDto;
 import com.serhiishcherbakov.notebooks.security.UserDetails;
@@ -23,7 +24,7 @@ import java.util.stream.Stream;
 public class NotebookService {
     private final NotebookRepository notebookRepository;
     private final TagService tagService;
-    private final RabbitService rabbitService;
+    private final OutboxEventService outboxEventService;
 
     @Value("${app.notebooks.retention-period}")
     private Duration retentionPeriod;
@@ -48,7 +49,7 @@ public class NotebookService {
                 .build();
 
         notebook = notebookRepository.save(notebook);
-        rabbitService.publishNotebookCreatedEvent(notebook);
+        outboxEventService.saveNotebookOutboxEvent(notebook, OutboxEventType.NOTEBOOK_CREATED);
         return notebook;
     }
 
@@ -116,7 +117,7 @@ public class NotebookService {
 
     private Notebook updateAndPublishEvent(Notebook notebook) {
         notebook = notebookRepository.save(notebook);
-        rabbitService.publishNotebookUpdatedEvent(notebook);
+        outboxEventService.saveNotebookOutboxEvent(notebook, OutboxEventType.NOTEBOOK_UPDATED);
         return notebook;
     }
 
@@ -124,7 +125,7 @@ public class NotebookService {
     public void deleteNotebook(Long id, UserDetails user) {
         var notebook = getNotebook(id, user);
         notebookRepository.delete(notebook);
-        rabbitService.publishNotebookDeletedEvent(notebook);
+        outboxEventService.saveNotebookOutboxEvent(notebook, OutboxEventType.NOTEBOOK_DELETED);
     }
 
     @Transactional
@@ -135,7 +136,7 @@ public class NotebookService {
             return notebooks;
         }
         notebookRepository.deleteAll(notebooks);
-        rabbitService.publishNotebookDeletedEvent(notebooks.toArray(Notebook[]::new));
+        outboxEventService.saveNotebookOutboxEvent(notebooks, OutboxEventType.NOTEBOOK_DELETED);
         return notebooks;
     }
 }

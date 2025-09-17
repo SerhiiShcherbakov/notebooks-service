@@ -1,6 +1,6 @@
-package com.serhiishcherbakov.notebooks.messaging.model;
+package com.serhiishcherbakov.notebooks.domain.outbox;
 
-public enum EventType {
+public enum OutboxEventType {
     NOTEBOOK_CREATED,
     NOTEBOOK_UPDATED,
     NOTEBOOK_DELETED,
