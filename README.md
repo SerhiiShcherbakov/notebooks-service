@@ -4,6 +4,7 @@
 - Notebook creation and management
 - Tagging system for notebooks
 - Integration with RabbitMQ for messaging
+- Transactional outbox for reliable notebook and tag event publishing
 - MySQL database for data storage
 - Scheduled operations to remove archived notebooks
 
